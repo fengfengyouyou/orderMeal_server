@@ -10,6 +10,7 @@ var createFolder = function(folder){
         fs.mkdirSync(folder);
     }  
 };
+// 呵呵呵
 var uploadFolder = './public/images';
 createFolder(uploadFolder);
 var storage = multer.diskStorage({
