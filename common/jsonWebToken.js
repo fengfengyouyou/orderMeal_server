@@ -19,7 +19,7 @@ exports.checkToken = function(req, res, next){
             res.json({err:99,msg:'token无效'}) 
         } else {
             req.api_user = decode
-            console.log(decode)
+            console.log('user信息',decode)
             next()
         }
     })

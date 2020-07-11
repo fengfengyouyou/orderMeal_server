@@ -1,97 +1,39 @@
-#!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
-
+﻿var net = require('net'); // 使用代理
 var app = require('../app');
-var debug = require('debug')('node-api:server');
+var debug = require('debug')('my:server');
 var https = require('https');
-let fs = require('fs');
+var http = require('http');
+var fs = require('fs');
 var path = require('path');
 
-const httpsOption = {
+var httpsPort = 3001; // 自定义
+var httpPort = 3002; // 自定义
+// 第一步：https
+const credentials = {
   key:  fs.readFileSync(path.resolve(__dirname, './https/fengfengyou.cn.key')),
   cert: fs.readFileSync(path.resolve(__dirname, './https/fengfengyou.cn_bundle.crt'))
 }
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || '3001');
-app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-var server = https.createServer(httpsOption,app);
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port, function () {
-  console.log("running on" + port);
-});
-server.on('error', onError);
-server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
+var httpsServer = https.createServer(credentials,app);
+httpsServer.listen(httpsPort);
+// 第二步：http
+var server = http.createServer(app).listen(httpPort);
+// 2、创建服务器进行代理
+net.createServer(function(socket){
+ socket.once('data', function(buf){
+  // console.log(buf[0]);
+  // https数据流的第一位是十六进制“16”，转换成十进制就是22
+  var address = buf[0] === 22 ? httpsPort : httpPort;
+  //创建一个指向https或http服务器的链接
+  var proxy = net.createConnection(address, function() {
+   proxy.write(buf);
+   //反向代理的过程，tcp接受的数据交给代理链接，代理链接服务器端返回数据交由socket返回给客户端
+   socket.pipe(proxy).pipe(socket);
+  });
+  proxy.on('error', function(err) {
+   console.log(err);
+  });
+ });
+ socket.on('error', function(err) {
+  console.log(err);
+ });
+},app).listen(80); // 此处是真正能够访问的端口，网站默认是80端口。

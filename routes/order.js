@@ -23,7 +23,8 @@ router.get("/get", (req, res) => {
     let condition = JSON.parse(req.query.condition)
     let limit = condition.limit||10
     let skip = condition.pageNum*limit
-    Order.count({userId:req.api_user.openid})
+    console.log(req.api_user.openid)
+    Order.countDocuments({userId:req.api_user.openid})
     .then((count)=>{
         Order.find({userId:req.api_user.openid})
             .sort({ createTime: -1 })

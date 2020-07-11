@@ -13,6 +13,14 @@ var OrderRouter = require('./routes/order');
 var jtw = require('./common/jsonWebToken')
 var app = express();
 
+// 1、引入express的路由模块
+// var router = express.Router();
+// router.all("*", (req, res, next) => {
+//   let host = req.headers.host;
+//   host = host.replace(/\:\d+$/, ''); // Remove port number
+//   res.redirect(307, `https://${host}${req.path}`);
+// });
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
