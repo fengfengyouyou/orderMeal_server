@@ -4,7 +4,6 @@ var Goods = require("../bin/DAO/goods.js");
 // import {formartDate} from '../public/javascripts/formTime'
 var methods = require('../common/formTime')
 router.post("/add", (req, res) => {
-    // console.log(req.body)
     var s = new Goods({
         ...req.body,
         createTime: methods.formartDate()

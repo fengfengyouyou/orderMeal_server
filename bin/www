@@ -16,7 +16,9 @@ const credentials = {
 var httpsServer = https.createServer(credentials,app);
 httpsServer.listen(httpsPort);
 // 第二步：http
-var server = http.createServer(app).listen(httpPort);
+var server = http.createServer(app).listen(httpPort, () => {
+  console.log('启动成功:' + server.address().port);
+});
 // 2、创建服务器进行代理
 net.createServer(function(socket){
  socket.once('data', function(buf){

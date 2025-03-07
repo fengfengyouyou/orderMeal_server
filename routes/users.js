@@ -86,4 +86,12 @@ router.get('/getToken', (req, res) => {
     // console.log(req.query)
     res.json({ err: 0, msg: "登录成功", data: '12312313131' });
 })
+router.post('/webLogin', (req, res) => {
+    let userInfo = {
+        user_name: req.body.user_name,
+        password: req.body.password
+    }
+    console.log('收到了', userInfo, req.body)
+    res.json({status:2,userInfo,msg:'成功创建用户'})
+})
 module.exports = router;
